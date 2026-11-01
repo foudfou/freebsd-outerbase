@@ -31,7 +31,7 @@ This solution builds upon two [previous](https://github.com/Sec42/freebsd-remote
   * a bootable stock FreeBSD installer (e.g. DVD or memstick)
   * this script
 * install script provides hints and checks to help select the right target device
-* tested on bare metal and in VirtualBox with FreeBSD from 13.0-RELEASE to 14.1-RELEASE
+* tested on bare metal and in VirtualBox with FreeBSD from 13.0-RELEASE to 15.1-RELEASE
 ### security and privacy considerations
 The outer base is a stock FreeBSD base install that holds no user data (with the likely exception of a public SSH key for login). However, the kernel must be shared between the outer and inner base. This means that the kernel resides on the unencrypted UFS partition with the outer base system.
 

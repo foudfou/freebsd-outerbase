@@ -211,9 +211,8 @@ if [ -z "$customdrives" ]; then
   zpool create -o ashift=12 -m none -o altroot=$INNER_CHROOT $poolname /dev/gpt/inner.eli
 fi
 
-# default layout from the 14.1-RELEASE installer, taken from:
-# https://cgit.freebsd.org/
-#              src/tree/usr.sbin/bsdinstall/scripts/zfsboot?h=releng/14.1#n145
+# default layout from the 15.1-RELEASE installer, taken from:
+# https://cgit.freebsd.org/src/tree/usr.sbin/bsdinstall/scripts/zfsboot?h=releng/15.1#n145
 zfs create -o mountpoint=none $poolname/ROOT
 zfs create -o mountpoint=/    $poolname/ROOT/default
 zfs create -o mountpoint=/home                $poolname/home
@@ -287,26 +286,20 @@ install_pkgbase() {
   local repos_dir=/usr/share/bsdinstall
   local pkg_cmd="pkg --rootdir $chroot_path --repo-conf-dir $repos_dir -o IGNORE_OSVERSION=yes"
 
-  # Copy pkg keys to chroot
   mkdir -p "$chroot_path/usr/share/keys"
   cp -R /usr/share/keys/* "$chroot_path/usr/share/keys/"
 
-  # Update pkg repositories
   $pkg_cmd update
 
-  # Build package list - always install minimal set.
   local packages="FreeBSD-set-minimal"
 
-  # Check if pkg package is available
   if $pkg_cmd rquery -U -r FreeBSD-base %n | grep -q "^pkg$"; then
     packages="$packages pkg"
   fi
 
-  # Add user-specified package sets
   for pkgset in $user_pkgsets; do
     packages="$packages $pkgset"
 
-    # Add debug packages if requested
     if [ -n "$install_debug" ]; then
       if $pkg_cmd rquery -U -r FreeBSD-base %n | grep -q "^$pkgset-dbg$"; then
         packages="$packages $pkgset-dbg"
@@ -314,15 +307,12 @@ install_pkgbase() {
     fi
   done
 
-  # Add kernel debug symbols if requested
   if [ -n "$install_debug" ]; then
     packages="$packages FreeBSD-kernel-generic-dbg"
   fi
 
-  # Not part of FreeBSD-set-minimal, but FreeBSD-set-optional
   packages="$packages FreeBSD-ssh FreeBSD-bsdconfig"
 
-  # Fetch packages (with retry logic)
   while ! $pkg_cmd install -U -F -y -r FreeBSD-base $packages; do
     echo "Fetching packages failed. Retry? (y/n)"
     read answer
@@ -331,13 +321,11 @@ install_pkgbase() {
     fi
   done
 
-  # Install packages
   if ! $pkg_cmd install -U -y -r FreeBSD-base $packages; then
     echo "Package installation failed!"
     exit 1
   fi
 
-  # Enable FreeBSD-base repository for this system
   mkdir -p "$chroot_path/usr/local/etc/pkg/repos"
   echo 'FreeBSD-base: { enabled: yes }' > "$chroot_path/usr/local/etc/pkg/repos/FreeBSD.conf"
 
