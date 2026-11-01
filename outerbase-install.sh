@@ -72,7 +72,7 @@ outerpkgsets=""
 # pkgbase package sets to install for inner base
 # minimal: always installed (required)
 # Common options: "base", "lib32", "src", "tests"
-innerpkgsets="base"
+innerpkgsets="FreeBSD-set-base"
 
 # if set, install debug symbols for selected packages
 # This will install -dbg variants of installed package sets
@@ -294,8 +294,8 @@ install_pkgbase() {
   # Update pkg repositories
   $pkg_cmd update
 
-  # Build package list - always install minimal, kernel, and pkg (if available)
-  local packages="FreeBSD-set-minimal FreeBSD-kernel-generic"
+  # Build package list - always install minimal set.
+  local packages="FreeBSD-set-minimal"
 
   # Check if pkg package is available
   if $pkg_cmd rquery -U -r FreeBSD-base %n | grep -q "^pkg$"; then
@@ -304,12 +304,12 @@ install_pkgbase() {
 
   # Add user-specified package sets
   for pkgset in $user_pkgsets; do
-    packages="$packages FreeBSD-set-$pkgset"
+    packages="$packages $pkgset"
 
     # Add debug packages if requested
     if [ -n "$install_debug" ]; then
-      if $pkg_cmd rquery -U -r FreeBSD-base %n | grep -q "^FreeBSD-set-$pkgset-dbg$"; then
-        packages="$packages FreeBSD-set-$pkgset-dbg"
+      if $pkg_cmd rquery -U -r FreeBSD-base %n | grep -q "^$pkgset-dbg$"; then
+        packages="$packages $pkgset-dbg"
       fi
     fi
   done
@@ -349,7 +349,8 @@ install_pkgbase() {
 ### outer base install
 ###
 
-install_pkgbase "$OUTER_CHROOT" "outer" $outerpkgsets
+# Kernel is shared between outer and inner and thus only installed once in outer.
+install_pkgbase "$OUTER_CHROOT" "outer" $outerpkgsets FreeBSD-kernel-generic
 
 # Extract /var but leave it empty for varmfs if requested
 if [ -n "$varmfs" ]; then
