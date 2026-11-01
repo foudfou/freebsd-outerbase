@@ -66,12 +66,12 @@ outersize=1600M
 # pkgbase package sets to install for outer base
 # minimal: always installed (required)
 # Leave empty for minimal-only installation
-# Add: "base" for full base, "lib32" for 32-bit compat, etc.
+# Add "FreeBSD-set-base" for full base, "FreeBSD-set-lib32" for 32-bit compat, etc.
 outerpkgsets=""
 
 # pkgbase package sets to install for inner base
 # minimal: always installed (required)
-# Common options: "base", "lib32", "src", "tests"
+# Common options: "FreeBSD-set-base", "FreeBSD-set-lib32", "FreeBSD-set-src", "FreeBSD-set-tests"
 innerpkgsets="FreeBSD-set-base"
 
 # if set, install debug symbols for selected packages
